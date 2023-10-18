@@ -1,0 +1,10 @@
+.devenv*
+devenv.local.nix
+devenv.lock
+.direnv
+.pre-commit-config.yaml
+.envrc
+
+/target
+/Cargo.lock
+*.sqlite
