@@ -1,8 +1,10 @@
 use std::env;
 
-use axum::{body::Body, http::Response, response::Html, Form};
+use axum::{response::Response, Form};
 use serde::Deserialize;
 use sqlx::{sqlite::SqlitePoolOptions, Pool, Sqlite};
+
+use crate::pages::{error_page, redirect};
 
 #[derive(Deserialize, Debug)]
 pub struct UserData {
@@ -18,15 +20,15 @@ async fn get_pool() -> Pool<Sqlite> {
         .unwrap()
 }
 
-pub async fn login(Form(user_data): Form<UserData>) -> Html<String> {
+pub async fn login(Form(user_data): Form<UserData>) -> Result<Response, Response> {
     // TODO: Check for auth cookie
 
     let connection = get_pool().await;
 
     let user = sqlx::query!(
         r#"
-        SELECT username, password FROM users
-        WHERE username = $1 AND password = $2
+            SELECT username, password FROM users
+            WHERE username = $1 AND password = $2
         "#,
         user_data.username,
         user_data.password
@@ -36,14 +38,34 @@ pub async fn login(Form(user_data): Form<UserData>) -> Html<String> {
     .unwrap();
 
     if user.is_some() {
-        todo!()
+        Ok(redirect("https://www.google.com/"))
     } else {
-        todo!()
+        Err(error_page("User was not found"))
     }
 }
 
-pub async fn signup(Form(user_data): Form<UserData>) -> Response<Body> {
+pub async fn signup(Form(user_data): Form<UserData>) -> Result<Response, Response> {
+    if user_data.username.len() >= 15 {
+        return Err(error_page("Username must be under 15 characters"));
+    }
+
     let connection = get_pool().await;
+
+    let user = sqlx::query!(
+        r#"
+            SELECT username, password FROM users
+            WHERE username = $1 AND password = $2
+        "#,
+        user_data.username,
+        user_data.password
+    )
+    .fetch_optional(&connection)
+    .await
+    .unwrap();
+
+    if user.is_some() {
+        return Err(error_page("User already exists"));
+    }
 
     let _ = sqlx::query!(
         "INSERT INTO users (username, password) VALUES ($1, $2)",
@@ -53,9 +75,5 @@ pub async fn signup(Form(user_data): Form<UserData>) -> Response<Body> {
     .execute(&connection)
     .await;
 
-    Response::builder()
-        .status(301)
-        .header("Location", "www.google.com")
-        .body(Body::empty())
-        .unwrap()
+    Ok(redirect("/"))
 }

@@ -2,6 +2,7 @@ use askama::Template;
 use axum::{response::Html, routing::get, Router};
 
 mod api;
+mod pages;
 
 #[tokio::main]
 async fn main() {
