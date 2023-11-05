@@ -40,7 +40,7 @@ pub async fn login(Form(user_data): Form<UserData>) -> Result<Response, Response
     if user.is_some() {
         Ok(redirect("https://www.google.com/"))
     } else {
-        Err(error_page("User was not found"))
+        Err(error_page("Wrong password"))
     }
 }
 
@@ -53,18 +53,17 @@ pub async fn signup(Form(user_data): Form<UserData>) -> Result<Response, Respons
 
     let user = sqlx::query!(
         r#"
-            SELECT username, password FROM users
-            WHERE username = $1 AND password = $2
+            SELECT username FROM users
+            WHERE username = $1
         "#,
         user_data.username,
-        user_data.password
     )
     .fetch_optional(&connection)
     .await
     .unwrap();
 
     if user.is_some() {
-        return Err(error_page("User already exists"));
+        return Err(error_page("User with this name already exists"));
     }
 
     let _ = sqlx::query!(

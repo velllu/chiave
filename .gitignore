@@ -1,6 +1,7 @@
 .devenv*
 devenv.local.nix
 devenv.lock
+credentials.sqlite-*
 .direnv
 .pre-commit-config.yaml
 
