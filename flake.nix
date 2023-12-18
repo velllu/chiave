@@ -26,23 +26,6 @@
           ];
 
           RUST_SRC_PATH = rustPlatform.rustLibSrc;
-
-          DATABASE_NAME = "./credentials.sqlite";
-          DATABASE_URL = "sqlite:./credentials.sqlite";
-
-          shellHook = ''
-            bash -c "
-              if [ -f '$DATABASE_NAME' ]; then
-                echo -e '\e[34m[Chiave] Database already exists\e[0m'
-              else
-                echo -e '\e[34m[Chiave] Creating database\e[0m'
-                sqlx database create
-                sqlx migrate run
-                rm "$DATABASE_NAME-shm"
-                rm "$DATABASE_NAME-wal"
-              fi
-            "
-          '';
         };
       });
 }

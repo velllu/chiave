@@ -6,9 +6,3 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-askama = "0.12.1"
-# TODO: Update it to the proper 0.7 version once it's done
-axum = { git = "https://github.com/tokio-rs/axum" }
-serde = { version = "1.0.189", features = ["derive"] }
-sqlx = { version = "0.7.2", features = ["sqlite", "runtime-tokio"] }
-tokio = { version = "1.33.0", features = ["full"] }
